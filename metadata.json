@@ -1,0 +1,8 @@
+{
+  "name": "Remix STIL DJ STUDIO PRO",
+  "description": "Full-featured browser DJ software with dual decks, vinyl scratching, Web Audio API DSP effects, BPM matching, and architectural guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
