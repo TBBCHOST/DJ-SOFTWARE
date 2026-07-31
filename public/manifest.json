@@ -1,0 +1,19 @@
+{
+  "short_name": "DJ Studio Pro",
+  "name": "STIL DJ Studio Pro Desktop Workstation",
+  "icons": [
+    {
+      "src": "pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#08090d",
+  "theme_color": "#0c0d12",
+  "display": "standalone",
+  "orientation": "landscape",
+  "scope": "/",
+  "description": "Professional DJ Studio Software with multi-deck scratching, Web Audio DSP effects, and live broadcasting."
+}
