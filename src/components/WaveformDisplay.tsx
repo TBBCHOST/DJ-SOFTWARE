@@ -89,19 +89,41 @@ export const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
       const step = Math.ceil(channelData.length / width);
       const amp = chHeight / 2;
 
-      // Render Beat Grid lines in dragon gold/white
+      // Render Beat Grid lines with Downbeats & Measure Markers
       if (bpm > 0) {
         const beatIntervalSec = 60 / bpm;
         const totalBeats = duration / beatIntervalSec;
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.12)';
-        ctx.lineWidth = 1;
+
         for (let b = 0; b < totalBeats; b++) {
           const beatTime = b * beatIntervalSec;
           const x = (beatTime / duration) * width;
+          const isDownbeat = b % 4 === 0;
+
           ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, chHeight);
-          ctx.stroke();
+          if (isDownbeat) {
+            // Bright downbeat marker (bar start)
+            ctx.strokeStyle = 'rgba(6, 182, 212, 0.45)'; // Bright cyan
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, chHeight);
+            ctx.stroke();
+
+            // Measure number text at top
+            const barNum = Math.floor(b / 4) + 1;
+            ctx.fillStyle = '#06b6d4';
+            ctx.font = '8px monospace';
+            ctx.textAlign = 'left';
+            if (x < width - 15) {
+              ctx.fillText(`${barNum}`, x + 2, 9);
+            }
+          } else {
+            // Subtle beat ticks
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.2)'; // Gold tick
+            ctx.lineWidth = 1;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, chHeight);
+            ctx.stroke();
+          }
         }
       }
 
@@ -209,6 +231,14 @@ export const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
         onClick={handleSeekFromEvent}
         title="Click or drag anywhere on waveform to needle search / seek!"
       />
+      {/* Beat Grid Alignment Badge */}
+      {bpm > 0 && (
+        <div className="absolute top-1 left-2 bg-[#080305]/90 px-1 py-0.2 rounded text-[8px] font-mono font-bold text-cyan-400 border border-[#2b0f15] flex items-center gap-1 shadow pointer-events-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>GRID 4/4 @ {bpm} BPM</span>
+        </div>
+      )}
+
       {/* Time Display Badge */}
       <div className="absolute bottom-1 right-2 bg-[#1c080d]/90 px-1.5 py-0.5 rounded text-[10px] font-mono text-amber-300 border border-[#4a131b]">
         {formatTime(currentTime)} / {formatTime(duration)}

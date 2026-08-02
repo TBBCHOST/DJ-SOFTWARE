@@ -169,7 +169,7 @@ export const DesktopTitleBar: React.FC<DesktopTitleBarProps> = ({
             <span className="font-extrabold tracking-wider text-slate-100 text-[11px] flex items-center gap-1.5">
               STIL DJ STUDIO PRO
               <span className="text-[9px] font-mono font-bold text-amber-400 bg-red-950/90 border border-amber-600/80 px-1 py-0.2 rounded">
-                DRAGON EDITION
+                DRAGON EDITION v0.1
               </span>
             </span>
           </div>

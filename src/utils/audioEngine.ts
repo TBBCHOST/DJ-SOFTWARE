@@ -36,6 +36,9 @@ export class AudioEngine {
     playbackRate: number;
     isScratching: boolean;
     scratchVelocity: number;
+    isSlipping: boolean;
+    slipCtxTime: number;
+    slipOffset: number;
   }> | null = null;
 
   // Mixers State
@@ -106,6 +109,7 @@ export class AudioEngine {
       crossfaderAssign: defaultAssign,
       isPlaying: false,
       isScratching: false,
+      slipMode: false,
       currentTime: 0,
       duration: 0,
       playbackRate: 1.0,
@@ -259,6 +263,9 @@ export class AudioEngine {
       playbackRate: 1.0,
       isScratching: false,
       scratchVelocity: 0,
+      isSlipping: false,
+      slipCtxTime: 0,
+      slipOffset: 0,
     };
   }
 
@@ -404,11 +411,22 @@ export class AudioEngine {
     }
   }
 
+  public toggleSlipMode(deckId: DeckId) {
+    this.deckStates[deckId].slipMode = !this.deckStates[deckId].slipMode;
+    this.notify();
+  }
+
   // Real-time vinyl scratching velocity handling
   public setScratchVelocity(deckId: DeckId, velocity: number) {
     if (!this.decks || !this.ctx) return;
     const deck = this.decks[deckId];
     if (!deck.buffer) return;
+
+    if (this.deckStates[deckId].slipMode && !deck.isSlipping) {
+      deck.isSlipping = true;
+      deck.slipCtxTime = this.ctx.currentTime;
+      deck.slipOffset = this.getDeckCurrentTime(deckId);
+    }
 
     deck.isScratching = true;
     deck.scratchVelocity = velocity;
@@ -431,7 +449,12 @@ export class AudioEngine {
       deck.source.playbackRate.setValueAtTime(this.deckStates[deckId].playbackRate, this.ctx.currentTime);
     }
 
-    if (!this.deckStates[deckId].isPlaying) {
+    if (deck.isSlipping) {
+      const elapsed = (this.ctx.currentTime - deck.slipCtxTime) * this.deckStates[deckId].playbackRate;
+      const targetTime = (deck.slipOffset + elapsed) % (deck.buffer?.duration || 1);
+      deck.isSlipping = false;
+      this.seekDeck(deckId, targetTime);
+    } else if (!this.deckStates[deckId].isPlaying) {
       this.pauseDeck(deckId);
     }
     this.notify();
@@ -774,6 +797,14 @@ export class AudioEngine {
   public clearHotCue(deckId: DeckId, index: number) {
     this.deckStates[deckId].hotCues[index] = null;
     this.notify();
+  }
+
+  public setHotCueColor(deckId: DeckId, index: number, color: string) {
+    const cue = this.deckStates[deckId].hotCues[index];
+    if (cue) {
+      cue.color = color;
+      this.notify();
+    }
   }
 
   public isRecording = false;

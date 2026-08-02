@@ -6,7 +6,7 @@ interface SamplerPad {
   key: string;
   sfxId: string;
   name: string;
-  bank: 'club' | 'fx' | 'perc';
+  bank: 'club' | 'fx' | 'perc' | 'drops' | 'synths';
   color: string;
   glowColor: string;
 }
@@ -27,12 +27,30 @@ const allPads: SamplerPad[] = [
   // Bank C - Perc & Vocal
   { key: '9', sfxId: 'rimshot', name: 'ANALOG RIM', bank: 'perc', color: 'from-teal-600 to-teal-500 border-teal-400 text-white', glowColor: 'shadow-teal-500/50 ring-teal-400' },
   { key: '0', sfxId: 'vocal_hey', name: 'VOCAL "HEY!"', bank: 'perc', color: 'from-yellow-600 to-amber-500 border-yellow-400 text-white', glowColor: 'shadow-yellow-500/50 ring-yellow-400' },
-  { key: 'q', sfxId: 'cymbal', name: 'CYMBAL RISER', bank: 'perc', color: 'from-indigo-600 to-indigo-500 border-indigo-400 text-white', glowColor: 'shadow-indigo-500/50 ring-indigo-400' },
+  { key: 'q', sfxId: 'vocal_yeah', name: 'VOCAL "YEAH!"', bank: 'perc', color: 'from-yellow-500 to-orange-500 border-yellow-300 text-white', glowColor: 'shadow-yellow-500/50 ring-yellow-400' },
   { key: 'w', sfxId: 'glitch', name: 'GLITCH STUTTER', bank: 'perc', color: 'from-fuchsia-600 to-fuchsia-500 border-fuchsia-400 text-white', glowColor: 'shadow-fuchsia-500/50 ring-fuchsia-400' },
+
+  // Bank D - Drops & Impacts
+  { key: 'e', sfxId: 'drop_boom', name: 'CINEMA BOOM', bank: 'drops', color: 'from-red-700 to-rose-600 border-red-400 text-white', glowColor: 'shadow-red-500/50 ring-red-400' },
+  { key: 'r', sfxId: 'laser_sweep', name: 'LASER SWEEP', bank: 'drops', color: 'from-lime-600 to-emerald-500 border-lime-400 text-white', glowColor: 'shadow-lime-500/50 ring-lime-400' },
+  { key: 't', sfxId: 'cymbal', name: 'CYMBAL RISER', bank: 'drops', color: 'from-indigo-600 to-indigo-500 border-indigo-400 text-white', glowColor: 'shadow-indigo-500/50 ring-indigo-400' },
+  { key: 'o', sfxId: 'sub_impact', name: 'SUB ZERO BOOM', bank: 'drops', color: 'from-amber-700 to-orange-600 border-amber-400 text-white', glowColor: 'shadow-amber-500/50 ring-amber-400' },
+
+  // Bank E - Synths & Scratches
+  { key: 'y', sfxId: 'synth_stab', name: 'HOUSE STAB', bank: 'synths', color: 'from-violet-600 to-purple-500 border-violet-400 text-white', glowColor: 'shadow-violet-500/50 ring-violet-400' },
+  { key: 'u', sfxId: 'tape_stop', name: 'TAPE STOP', bank: 'synths', color: 'from-sky-600 to-blue-500 border-sky-400 text-white', glowColor: 'shadow-sky-500/50 ring-sky-400' },
+  { key: 'i', sfxId: 'scratch_cut', name: 'SCRATCH CUT', bank: 'synths', color: 'from-rose-600 to-pink-500 border-rose-400 text-white', glowColor: 'shadow-rose-500/50 ring-rose-400' },
+  { key: 's', sfxId: 'synth_pluck', name: 'FUTURE CHIME', bank: 'synths', color: 'from-emerald-500 to-teal-600 border-emerald-300 text-white', glowColor: 'shadow-emerald-500/50 ring-emerald-400' },
+  { key: 'f', sfxId: 'orchestra_hit', name: '90s ORCH HIT', bank: 'synths', color: 'from-fuchsia-700 to-purple-600 border-fuchsia-300 text-white', glowColor: 'shadow-fuchsia-500/50 ring-fuchsia-400' },
+
+  // Bank F - Vocal Chants & FX
+  { key: 'p', sfxId: 'vocal_letsgo', name: '"LET\'S GO!" CHANT', bank: 'club', color: 'from-yellow-600 to-red-500 border-yellow-300 text-white', glowColor: 'shadow-yellow-500/50 ring-yellow-400' },
+  { key: 'a', sfxId: 'reggae_horn', name: 'REGGAE AIRHORN', bank: 'club', color: 'from-amber-500 to-red-600 border-amber-300 text-white', glowColor: 'shadow-amber-500/50 ring-amber-400' },
+  { key: 'd', sfxId: 'hihat_triplet', name: 'TRAP TRIPLETS', bank: 'perc', color: 'from-cyan-600 to-blue-600 border-cyan-300 text-white', glowColor: 'shadow-cyan-500/50 ring-cyan-400' },
 ];
 
 export const SamplerPads: React.FC = () => {
-  const [activeBank, setActiveBank] = useState<'all' | 'club' | 'fx' | 'perc'>('all');
+  const [activeBank, setActiveBank] = useState<'all' | 'club' | 'fx' | 'perc' | 'drops' | 'synths'>('all');
   const [activePadKey, setActivePadKey] = useState<string | null>(null);
 
   const triggerPad = (pad: SamplerPad) => {
@@ -69,17 +87,17 @@ export const SamplerPads: React.FC = () => {
             <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-100 flex items-center gap-1 font-mono leading-none">
               SAMPLER MATRIX
               <span className="text-[8px] font-mono text-amber-400 bg-amber-950 border border-amber-800 px-1 py-0.1 rounded-none">
-                12 PADS
+                24 PADS
               </span>
             </h3>
           </div>
         </div>
 
         {/* Bank Selection Tabs */}
-        <div className="flex items-center gap-1 font-mono text-[9px] font-bold">
+        <div className="flex items-center gap-1 font-mono text-[9px] font-bold flex-wrap">
           <button
             onClick={() => setActiveBank('all')}
-            className={`px-1.5 py-0.5 rounded-none border transition ${
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
               activeBank === 'all'
                 ? 'bg-amber-500/30 border-amber-500 text-amber-300'
                 : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
@@ -89,7 +107,7 @@ export const SamplerPads: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveBank('club')}
-            className={`px-1.5 py-0.5 rounded-none border transition ${
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
               activeBank === 'club'
                 ? 'bg-blue-500/30 border-blue-500 text-blue-300'
                 : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
@@ -99,7 +117,7 @@ export const SamplerPads: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveBank('fx')}
-            className={`px-1.5 py-0.5 rounded-none border transition ${
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
               activeBank === 'fx'
                 ? 'bg-rose-500/30 border-rose-500 text-rose-300'
                 : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
@@ -109,7 +127,7 @@ export const SamplerPads: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveBank('perc')}
-            className={`px-1.5 py-0.5 rounded-none border transition ${
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
               activeBank === 'perc'
                 ? 'bg-teal-500/30 border-teal-500 text-teal-300'
                 : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
@@ -117,11 +135,31 @@ export const SamplerPads: React.FC = () => {
           >
             PERC
           </button>
+          <button
+            onClick={() => setActiveBank('drops')}
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
+              activeBank === 'drops'
+                ? 'bg-red-500/30 border-red-500 text-red-300'
+                : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            DROPS
+          </button>
+          <button
+            onClick={() => setActiveBank('synths')}
+            className={`px-1.5 py-0.5 rounded-none border transition cursor-pointer ${
+              activeBank === 'synths'
+                ? 'bg-violet-500/30 border-violet-500 text-violet-300'
+                : 'bg-[#08090d] border-[#232736] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            SYNTHS
+          </button>
         </div>
       </div>
 
-      {/* 12-Pad Grid Display */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1 flex-1 min-h-0 overflow-y-auto">
+      {/* 18-Pad Grid Display */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 xl:grid-cols-18 gap-1 flex-1 min-h-0 overflow-y-auto">
         {filteredPads.map((pad) => {
           const isTriggered = activePadKey === pad.key;
           return (

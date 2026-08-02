@@ -163,7 +163,7 @@ export const YouTubeModal: React.FC<YouTubeModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
-                VirtualDJ YouTube Video Loader
+                STIL DJ STUDIO PRO YouTube Video Loader
               </h2>
               <p className="text-xs text-rose-300/80">
                 Stream audio & live video from any YouTube link directly into your DJ decks

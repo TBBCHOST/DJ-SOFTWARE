@@ -39,6 +39,7 @@ export interface DeckState {
   crossfaderAssign: CrossfaderAssign;
   isPlaying: boolean;
   isScratching: boolean;
+  slipMode: boolean;
   currentTime: number;
   duration: number;
   playbackRate: number; // 0.5 to 1.5 (1 = 100% normal speed)

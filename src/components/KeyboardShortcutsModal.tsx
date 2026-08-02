@@ -19,8 +19,9 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
     { key: '5, 6, 7, 8', action: 'Trigger Hot Cues 1-4 (Deck B)', category: 'Cue Points' },
     { key: 'Left / Right Arrow', action: 'Nudge Crossfader Left / Right', category: 'Mixer' },
     { key: 'Down Arrow', action: 'Reset Crossfader to Center', category: 'Mixer' },
-    { key: 'Q / W / E', action: 'Trigger SFX Sampler Pads 1-3', category: 'Sampler' },
-    { key: 'A / S / D', action: 'Trigger SFX Sampler Pads 4-6', category: 'Sampler' },
+    { key: '1 - 0 Keys', action: 'Sampler Pads 1-10 (Airhorn, Scratch, Lasers)', category: '24-Pad Sampler' },
+    { key: 'Q - I Keys', action: 'Sampler Pads 11-18 (Shouts, Glitch, Drops)', category: '24-Pad Sampler' },
+    { key: 'O, P, A, S, D, F', action: 'Sampler Pads 19-24 (Reggae Horn, Chants, Hits)', category: '24-Pad Sampler' },
     { key: 'F11', action: 'Toggle Fullscreen Desktop Mode', category: 'Window' },
     { key: 'Esc', action: 'Close Active Overlay / Modal', category: 'Window' },
   ];

@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Volume2, Sliders, Layers, Mic, Drum, Activity, Music, RotateCcw, VolumeX, Headphones, Settings } from 'lucide-react';
+import { Volume2, Sliders, VolumeX, Headphones, Settings } from 'lucide-react';
 import { DeckState, MixerState, CrossfaderCurve, DeckId, CrossfaderAssign } from '../types';
 import { audioEngine, ALL_DECKS } from '../utils/audioEngine';
 import { Knob } from './Knob';
+import { FrequencyVisualizer } from './FrequencyVisualizer';
 
 interface MixerBoardProps {
   deckStates: Record<DeckId, DeckState>;
@@ -27,18 +28,7 @@ export const MixerChannelStrip: React.FC<{ deckId: DeckId; deckState: DeckState;
   isCompact = false,
 }) => {
   const [level, setLevel] = useState(0);
-  const [showStemLevels, setShowStemLevels] = useState(false);
   const color = DECK_COLORS[deckId] || '#3b82f6';
-  const stems = deckState.stems || {
-    vocals: true,
-    drums: true,
-    bass: true,
-    melody: true,
-    vocalLevel: 1.0,
-    drumLevel: 1.0,
-    bassLevel: 1.0,
-    melodyLevel: 1.0,
-  };
 
   useEffect(() => {
     let animId: number;
@@ -128,162 +118,6 @@ export const MixerChannelStrip: React.FC<{ deckId: DeckId; deckState: DeckState;
         size={isCompact ? 14 : 16}
       />
 
-      {/* Real-time STEMS Isolation & FX Section */}
-      <div className="w-full flex flex-col gap-0.5 bg-slate-900/90 p-0.5 rounded border border-slate-800/80 my-0">
-        <div className="flex items-center justify-between">
-          <span className="text-[8px] font-black uppercase text-slate-300 tracking-wider flex items-center gap-0.5">
-            <Layers className="w-2.5 h-2.5 text-cyan-400" /> STEMS
-          </span>
-          <button
-            onClick={() => setShowStemLevels(!showStemLevels)}
-            className="text-[7px] font-mono text-cyan-400 hover:text-cyan-300 underline font-bold cursor-pointer"
-          >
-            {showStemLevels ? 'HIDE' : 'SLIDER'}
-          </button>
-        </div>
-
-        {/* Stem Quick Mute / Solo Pad Buttons */}
-        <div className="grid grid-cols-2 gap-0.5 w-full">
-          {/* Vocal Stem */}
-          <button
-            onClick={() => audioEngine.toggleStemMute(deckId, 'vocals')}
-            className={`px-0.5 py-0.5 rounded text-[8px] font-extrabold flex items-center justify-center gap-0.5 transition border ${
-              stems.vocals
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/60 shadow-sm shadow-cyan-500/20'
-                : 'bg-slate-950 text-slate-600 border-slate-800 line-through'
-            }`}
-            title="Toggle Vocal Stem"
-          >
-            <Mic className="w-2 h-2 shrink-0" /> VOC
-          </button>
-
-          {/* Drums Stem */}
-          <button
-            onClick={() => audioEngine.toggleStemMute(deckId, 'drums')}
-            className={`px-0.5 py-0.5 rounded text-[8px] font-extrabold flex items-center justify-center gap-0.5 transition border ${
-              stems.drums
-                ? 'bg-amber-500/20 text-amber-300 border-amber-400/60 shadow-sm shadow-amber-500/20'
-                : 'bg-slate-950 text-slate-600 border-slate-800 line-through'
-            }`}
-            title="Toggle Drum / Beat Stem"
-          >
-            <Drum className="w-2 h-2 shrink-0" /> DRM
-          </button>
-
-          {/* Bass Stem */}
-          <button
-            onClick={() => audioEngine.toggleStemMute(deckId, 'bass')}
-            className={`px-0.5 py-0.5 rounded text-[8px] font-extrabold flex items-center justify-center gap-0.5 transition border ${
-              stems.bass
-                ? 'bg-rose-500/20 text-rose-300 border-rose-400/60 shadow-sm shadow-rose-500/20'
-                : 'bg-slate-950 text-slate-600 border-slate-800 line-through'
-            }`}
-            title="Toggle Bass Stem"
-          >
-            <Activity className="w-2 h-2 shrink-0" /> BAS
-          </button>
-
-          {/* Melody Stem */}
-          <button
-            onClick={() => audioEngine.toggleStemMute(deckId, 'melody')}
-            className={`px-0.5 py-0.5 rounded text-[8px] font-extrabold flex items-center justify-center gap-0.5 transition border ${
-              stems.melody
-                ? 'bg-purple-500/20 text-purple-300 border-purple-400/60 shadow-sm shadow-purple-500/20'
-                : 'bg-slate-950 text-slate-600 border-slate-800 line-through'
-            }`}
-            title="Toggle Melody / Synth Stem"
-          >
-            <Music className="w-2 h-2 shrink-0" /> MEL
-          </button>
-        </div>
-
-        {/* Stem Quick Action Shortcuts: Acapella, Instrumental, Reset */}
-        <div className="flex items-center justify-between gap-0.5 w-full pt-0.5 border-t border-slate-800/80">
-          <button
-            onClick={() => audioEngine.isolateStem(deckId, 'vocals')}
-            className="px-0.5 py-0.2 rounded bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 text-[7px] font-mono font-bold flex-1 truncate"
-            title="Acapella Solo: Mute all except vocals"
-          >
-            VOC
-          </button>
-          <button
-            onClick={() => audioEngine.isolateStem(deckId, 'drums')}
-            className="px-0.5 py-0.2 rounded bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-800 text-[7px] font-mono font-bold flex-1 truncate"
-            title="Instrumental Mode: Mute vocals"
-          >
-            DRM
-          </button>
-          <button
-            onClick={() => audioEngine.resetStems(deckId)}
-            className="p-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[7px] shrink-0"
-            title="Reset all stems"
-          >
-            <RotateCcw className="w-2 h-2" />
-          </button>
-        </div>
-
-        {/* Fine-grained Micro Stem Level Sliders */}
-        {showStemLevels && (
-          <div className="flex flex-col gap-1 pt-1 border-t border-slate-800/80 animate-fadeIn">
-            {/* Vocal Level */}
-            <div className="flex items-center justify-between gap-0.5 text-[7px] font-mono">
-              <span className="text-cyan-400 font-bold">VOC:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={stems.vocalLevel}
-                onChange={(e) => audioEngine.setStemLevel(deckId, 'vocals', parseFloat(e.target.value))}
-                className="w-12 h-1 accent-cyan-400 bg-slate-950 rounded cursor-pointer"
-              />
-            </div>
-
-            {/* Drums Level */}
-            <div className="flex items-center justify-between gap-0.5 text-[7px] font-mono">
-              <span className="text-amber-400 font-bold">DRM:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={stems.drumLevel}
-                onChange={(e) => audioEngine.setStemLevel(deckId, 'drums', parseFloat(e.target.value))}
-                className="w-12 h-1 accent-amber-400 bg-slate-950 rounded cursor-pointer"
-              />
-            </div>
-
-            {/* Bass Level */}
-            <div className="flex items-center justify-between gap-0.5 text-[7px] font-mono">
-              <span className="text-rose-400 font-bold">BAS:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={stems.bassLevel}
-                onChange={(e) => audioEngine.setStemLevel(deckId, 'bass', parseFloat(e.target.value))}
-                className="w-12 h-1 accent-rose-400 bg-slate-950 rounded cursor-pointer"
-              />
-            </div>
-
-            {/* Melody Level */}
-            <div className="flex items-center justify-between gap-0.5 text-[7px] font-mono">
-              <span className="text-purple-400 font-bold">MEL:</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={stems.melodyLevel}
-                onChange={(e) => audioEngine.setStemLevel(deckId, 'melody', parseFloat(e.target.value))}
-                className="w-12 h-1 accent-purple-400 bg-slate-950 rounded cursor-pointer"
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* FX Echo Button */}
       <div className="flex gap-0.5 w-full justify-center">
         <button
@@ -349,7 +183,7 @@ export const MixerChannelStrip: React.FC<{ deckId: DeckId; deckState: DeckState;
   );
 };
 
-export const VirtualDJCenterMixer: React.FC<{
+export const StilDJCenterMixer: React.FC<{
   mixerState: MixerState;
   onOpenBroadcast?: () => void;
   isCompact?: boolean;
@@ -427,6 +261,11 @@ export const VirtualDJCenterMixer: React.FC<{
             <span className={isRecording ? 'text-rose-400' : 'text-slate-500'}>REC</span>
           </div>
         </div>
+      </div>
+
+      {/* Real-time Web Audio Spectrum Visualizer */}
+      <div className="my-1">
+        <FrequencyVisualizer height={isCompact ? 55 : 70} isCompact={isCompact} />
       </div>
 
       {/* Main Full-Size Master Lever Bar Console */}

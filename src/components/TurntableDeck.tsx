@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Play, Pause, Square, Zap, Upload, Lock, Repeat, Activity, Search, Youtube } from 'lucide-react';
+import { Play, Pause, Square, Zap, Upload, Lock, Repeat, Activity, Search, Youtube, Layers, Mic, Drum, Music, RotateCcw, Sliders, Volume2, Sparkles } from 'lucide-react';
 import { DeckState, Track, DeckId, CrossfaderAssign } from '../types';
 import { audioEngine } from '../utils/audioEngine';
 import { WaveformDisplay } from './WaveformDisplay';
@@ -52,7 +52,19 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
   const [syncToast, setSyncToast] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchBox, setShowSearchBox] = useState(false);
+  const [showStemSliders, setShowStemSliders] = useState(false);
   const themeColor = DECK_COLORS[deckId] || '#ef4444';
+
+  const stems = state.stems || {
+    vocals: true,
+    drums: true,
+    bass: true,
+    melody: true,
+    vocalLevel: 1.0,
+    drumLevel: 1.0,
+    bassLevel: 1.0,
+    melodyLevel: 1.0,
+  };
 
   const filteredTracks = availableTracks.filter((t) => {
     if (!searchQuery.trim()) return true;
@@ -213,7 +225,7 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
           </div>
         </div>
 
-        {/* Right: BPM & Sync options */}
+        {/* Right: BPM, Slip & Sync options */}
         <div className="flex items-center gap-1 shrink-0">
           <div className="flex flex-col items-end leading-none">
             <span className={`font-mono font-black text-amber-400 ${isCompact ? 'text-[8px]' : 'text-[10px]'}`}>
@@ -225,6 +237,19 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
                 : 'ORIG'}
             </span>
           </div>
+
+          {/* Slip Mode Toggle Button */}
+          <button
+            onClick={() => audioEngine.toggleSlipMode(deckId)}
+            className={`px-1.5 py-0.5 rounded-none text-[8px] font-black font-mono transition border flex items-center gap-0.5 active:scale-95 cursor-pointer ${
+              state.slipMode
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-300 shadow shadow-purple-900 ring-1 ring-purple-300 animate-pulse'
+                : 'bg-[#1c080d] hover:bg-[#2e0e15] text-purple-300 border-[#3d1217]'
+            }`}
+            title="Slip Mode: Background track continues playback during scratches and loops"
+          >
+            {state.slipMode ? 'SLIP ON' : 'SLIP'}
+          </button>
 
           {/* Sync Button */}
           <button
@@ -263,12 +288,25 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
         height={isCompact ? 28 : 36}
       />
 
-      {/* Interactive Drag Scrubber Progress Bar (Visually Moves continuously!) */}
-      <div className="relative w-full h-1.5 bg-[#1b070a] border-b border-[#3d1217] cursor-pointer group">
+      {/* Interactive Drag Scrubber Progress Bar with Hot Cue Markers */}
+      <div className="relative w-full h-2 bg-[#1b070a] border-b border-[#3d1217] cursor-pointer group overflow-visible">
         <div
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-600 via-orange-500 to-amber-400 transition-all duration-75"
           style={{ width: `${progressPercent}%` }}
         />
+        {/* Render Hot Cue Markers on Scrubber */}
+        {state.hotCues.map((cue, i) => {
+          if (!cue || !state.duration) return null;
+          const posPct = (cue.time / state.duration) * 100;
+          return (
+            <div
+              key={i}
+              className="absolute top-0 -translate-x-1/2 w-1.5 h-full rounded-full shadow border border-black/80 z-10"
+              style={{ left: `${posPct}%`, backgroundColor: cue.color }}
+              title={`Hot Cue ${i + 1} (${formatDeckTime(cue.time)})`}
+            />
+          );
+        })}
         <input
           type="range"
           min="0"
@@ -276,7 +314,7 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
           step="0.1"
           value={state.currentTime}
           onChange={(e) => audioEngine.seekDeck(deckId, parseFloat(e.target.value))}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
           title="Scrub Track Position"
         />
       </div>
@@ -390,13 +428,185 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
         </div>
       </div>
 
+      {/* Integrated STEMS Separation & Isolation Section */}
+      <div className={`bg-[#080203] rounded-none border-b border-[#3d1217] flex flex-col gap-1 ${isCompact ? 'p-1' : 'p-1.5'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Layers className="w-3 h-3 text-cyan-400" />
+            <span className="text-[9px] font-black font-mono text-cyan-300 uppercase tracking-wider">
+              REAL-TIME STEM SEPARATION
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowStemSliders(!showStemSliders)}
+              className="text-[7px] font-mono text-cyan-400 hover:text-cyan-300 underline font-bold cursor-pointer"
+            >
+              {showStemSliders ? 'HIDE SLIDERS' : 'SLIDERS'}
+            </button>
+            <button
+              onClick={() => audioEngine.resetStems(deckId)}
+              className="px-1 py-0.2 rounded bg-[#1c080d] hover:bg-[#2e0e15] text-slate-300 border border-[#3d1217] text-[7px] font-mono font-bold flex items-center gap-0.5"
+              title="Reset All Stems"
+            >
+              <RotateCcw className="w-2 h-2 text-cyan-400" /> RST
+            </button>
+          </div>
+        </div>
+
+        {/* Stem Quick Mute / Solo Buttons */}
+        <div className="grid grid-cols-4 gap-1">
+          {/* Vocal Stem */}
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => audioEngine.toggleStemMute(deckId, 'vocals')}
+              className={`py-1 px-1 rounded text-[8px] font-black font-mono flex items-center justify-center gap-1 transition border cursor-pointer ${
+                stems.vocals
+                  ? 'bg-cyan-950/90 text-cyan-300 border-cyan-400/80 shadow shadow-cyan-950 ring-1 ring-cyan-500/40'
+                  : 'bg-black text-slate-600 border-slate-800 line-through'
+              }`}
+              title="Toggle Vocal Stem"
+            >
+              <Mic className="w-2.5 h-2.5 shrink-0" /> VOCAL
+            </button>
+            <button
+              onClick={() => audioEngine.isolateStem(deckId, 'vocals')}
+              className="py-0.2 rounded bg-[#150608] hover:bg-cyan-950 text-cyan-400 border border-[#3d1217] text-[6.5px] font-mono font-bold text-center"
+              title="Acapella Solo Mode"
+            >
+              SOLO
+            </button>
+          </div>
+
+          {/* Drums Stem */}
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => audioEngine.toggleStemMute(deckId, 'drums')}
+              className={`py-1 px-1 rounded text-[8px] font-black font-mono flex items-center justify-center gap-1 transition border cursor-pointer ${
+                stems.drums
+                  ? 'bg-amber-950/90 text-amber-300 border-amber-400/80 shadow shadow-amber-950 ring-1 ring-amber-500/40'
+                  : 'bg-black text-slate-600 border-slate-800 line-through'
+              }`}
+              title="Toggle Drum / Beat Stem"
+            >
+              <Drum className="w-2.5 h-2.5 shrink-0" /> DRUMS
+            </button>
+            <button
+              onClick={() => audioEngine.isolateStem(deckId, 'drums')}
+              className="py-0.2 rounded bg-[#150608] hover:bg-amber-950 text-amber-400 border border-[#3d1217] text-[6.5px] font-mono font-bold text-center"
+              title="Beat Solo Mode"
+            >
+              SOLO
+            </button>
+          </div>
+
+          {/* Bass Stem */}
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => audioEngine.toggleStemMute(deckId, 'bass')}
+              className={`py-1 px-1 rounded text-[8px] font-black font-mono flex items-center justify-center gap-1 transition border cursor-pointer ${
+                stems.bass
+                  ? 'bg-rose-950/90 text-rose-300 border-rose-400/80 shadow shadow-rose-950 ring-1 ring-rose-500/40'
+                  : 'bg-black text-slate-600 border-slate-800 line-through'
+              }`}
+              title="Toggle Bass Stem"
+            >
+              <Activity className="w-2.5 h-2.5 shrink-0" /> BASS
+            </button>
+            <button
+              onClick={() => audioEngine.isolateStem(deckId, 'bass')}
+              className="py-0.2 rounded bg-[#150608] hover:bg-rose-950 text-rose-400 border border-[#3d1217] text-[6.5px] font-mono font-bold text-center"
+              title="Bass Solo Mode"
+            >
+              SOLO
+            </button>
+          </div>
+
+          {/* Melody Stem */}
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => audioEngine.toggleStemMute(deckId, 'melody')}
+              className={`py-1 px-1 rounded text-[8px] font-black font-mono flex items-center justify-center gap-1 transition border cursor-pointer ${
+                stems.melody
+                  ? 'bg-purple-950/90 text-purple-300 border-purple-400/80 shadow shadow-purple-950 ring-1 ring-purple-500/40'
+                  : 'bg-black text-slate-600 border-slate-800 line-through'
+              }`}
+              title="Toggle Melody / Synth Stem"
+            >
+              <Music className="w-2.5 h-2.5 shrink-0" /> MELODY
+            </button>
+            <button
+              onClick={() => audioEngine.isolateStem(deckId, 'melody')}
+              className="py-0.2 rounded bg-[#150608] hover:bg-purple-950 text-purple-400 border border-[#3d1217] text-[6.5px] font-mono font-bold text-center"
+              title="Melody Solo Mode"
+            >
+              SOLO
+            </button>
+          </div>
+        </div>
+
+        {/* Micro Stem Volume Faders (When Toggled) */}
+        {showStemSliders && (
+          <div className="grid grid-cols-4 gap-1 pt-1 border-t border-[#3d1217] animate-fadeIn">
+            <div className="flex items-center gap-1 text-[7px] font-mono">
+              <span className="text-cyan-400 font-bold">VOC:</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={stems.vocalLevel}
+                onChange={(e) => audioEngine.setStemLevel(deckId, 'vocals', parseFloat(e.target.value))}
+                className="w-full h-1 accent-cyan-400 bg-black rounded cursor-pointer"
+              />
+            </div>
+            <div className="flex items-center gap-1 text-[7px] font-mono">
+              <span className="text-amber-400 font-bold">DRM:</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={stems.drumLevel}
+                onChange={(e) => audioEngine.setStemLevel(deckId, 'drums', parseFloat(e.target.value))}
+                className="w-full h-1 accent-amber-400 bg-black rounded cursor-pointer"
+              />
+            </div>
+            <div className="flex items-center gap-1 text-[7px] font-mono">
+              <span className="text-rose-400 font-bold">BAS:</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={stems.bassLevel}
+                onChange={(e) => audioEngine.setStemLevel(deckId, 'bass', parseFloat(e.target.value))}
+                className="w-full h-1 accent-rose-400 bg-black rounded cursor-pointer"
+              />
+            </div>
+            <div className="flex items-center gap-1 text-[7px] font-mono">
+              <span className="text-purple-400 font-bold">MEL:</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={stems.melodyLevel}
+                onChange={(e) => audioEngine.setStemLevel(deckId, 'melody', parseFloat(e.target.value))}
+                className="w-full h-1 accent-purple-400 bg-black rounded cursor-pointer"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Useful Control Pads: Beat Loop Controls & Hot Cues & FX */}
       <div className={`grid grid-cols-12 gap-1 bg-[#0d0406] rounded-none border-b border-[#3d1217] ${isCompact ? 'p-0.5' : 'p-1'}`}>
         {/* Loop Controls */}
         <div className="col-span-5 flex flex-col gap-0.5">
           <div className="flex items-center justify-between">
             <span className="text-[7px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-0.5">
-              <Repeat className="w-2 h-2 text-amber-400" /> LOOP
+              <Repeat className="w-2 h-2 text-amber-400" /> LOOP PRESETS
             </span>
             <button
               onClick={() => audioEngine.toggleLoop(deckId)}
@@ -411,7 +621,7 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
           </div>
 
           <div className="grid grid-cols-4 gap-0.5">
-            {[0.5, 1, 2, 4].map((beats) => (
+            {[0.25, 0.5, 1, 2, 4, 8, 16, 32].map((beats) => (
               <button
                 key={beats}
                 onClick={() => audioEngine.setLoopLength(deckId, beats)}
@@ -421,38 +631,74 @@ export const TurntableDeck: React.FC<TurntableDeckProps> = ({
                     : 'bg-[#1c080d] hover:bg-[#2e0e15] text-amber-300 border-[#3d1217]'
                 }`}
               >
-                {beats < 1 ? '1/2' : `${beats}B`}
+                {beats === 0.25 ? '1/4' : beats === 0.5 ? '1/2' : `${beats}B`}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Hot Cues */}
+        {/* Hot Cues with Color Picker */}
         <div className="col-span-4 flex flex-col gap-0.5">
-          <span className="text-[7px] font-bold text-rose-300 uppercase tracking-wider block leading-none">
-            HOT CUES
-          </span>
+          <div className="flex justify-between items-center">
+            <span className="text-[7px] font-bold text-rose-300 uppercase tracking-wider block leading-none">
+              HOT CUES (1-4)
+            </span>
+            <span className="text-[6px] text-slate-400 font-mono">COLOR OPT</span>
+          </div>
           <div className="grid grid-cols-4 gap-0.5">
-            {state.hotCues.map((cue, idx) => (
-              <button
-                key={idx}
-                onClick={() => audioEngine.jumpToHotCue(deckId, idx)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  audioEngine.clearHotCue(deckId, idx);
-                }}
-                className={`rounded font-mono text-[7px] font-bold flex flex-col items-center justify-center transition border cursor-pointer ${
-                  isCompact ? 'h-4' : 'h-5'
-                } ${
-                  cue
-                    ? 'bg-gradient-to-br from-red-600 to-amber-600 border-amber-300 text-white font-black shadow'
-                    : 'bg-[#1a080c] border-[#3d1217] text-rose-400 hover:border-amber-600/50'
-                }`}
-                title={cue ? `Cue ${idx + 1} (${cue.time.toFixed(1)}s) - Right-click to clear` : `Set Cue ${idx + 1}`}
-              >
-                <span>C{idx + 1}</span>
-              </button>
-            ))}
+            {state.hotCues.map((cue, idx) => {
+              const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#06b6d4', '#ec4899', '#eab308'];
+              return (
+                <div key={idx} className="relative group/cue flex flex-col">
+                  <button
+                    onClick={() => audioEngine.jumpToHotCue(deckId, idx)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      audioEngine.clearHotCue(deckId, idx);
+                    }}
+                    className={`w-full rounded font-mono text-[7px] font-bold flex flex-col items-center justify-center transition border cursor-pointer ${
+                      isCompact ? 'h-4' : 'h-5'
+                    }`}
+                    style={
+                      cue
+                        ? {
+                            backgroundColor: cue.color,
+                            borderColor: '#ffffff50',
+                            color: '#ffffff',
+                            boxShadow: `0 0 6px ${cue.color}80`,
+                          }
+                        : {
+                            backgroundColor: '#1a080c',
+                            borderColor: '#3d1217',
+                            color: '#fb7185',
+                          }
+                    }
+                    title={
+                      cue
+                        ? `Cue ${idx + 1} (${formatDeckTime(cue.time)}) - Right-click to clear`
+                        : `Set Cue ${idx + 1}`
+                    }
+                  >
+                    <span>C{idx + 1}</span>
+                  </button>
+
+                  {/* Color Cycle Button when Cue is set */}
+                  {cue && (
+                    <div className="flex justify-center gap-0.5 mt-0.5">
+                      {colors.slice(0, 4).map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => audioEngine.setHotCueColor(deckId, idx, c)}
+                          className="w-1.5 h-1.5 rounded-full border border-black/50 cursor-pointer hover:scale-125 transition-transform"
+                          style={{ backgroundColor: c }}
+                          title={`Set Cue ${idx + 1} color to ${c}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
             <h1 className="text-xs font-black tracking-wider text-slate-100 flex items-center gap-1.5">
               STIL DJ STUDIO PRO
               <span className="text-[9px] font-mono font-bold text-amber-400 bg-red-950/90 border border-amber-600/80 px-1 py-0.1 rounded-sm">
-                DRAGON EDITION
+                DRAGON EDITION v0.1
               </span>
             </h1>
           </div>

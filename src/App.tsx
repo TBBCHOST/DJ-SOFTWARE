@@ -5,7 +5,7 @@ import { createSynthesizedTrack, createSFXBuffers } from './utils/synthesizeTrac
 import { Track, DeckState, MixerState, DeckId } from './types';
 import { DesktopTitleBar } from './components/DesktopTitleBar';
 import { TurntableDeck } from './components/TurntableDeck';
-import { MixerBoard, MixerChannelStrip, VirtualDJCenterMixer } from './components/MixerBoard';
+import { MixerBoard, MixerChannelStrip, StilDJCenterMixer } from './components/MixerBoard';
 import { SamplerPads } from './components/SamplerPads';
 import { FileBrowser } from './components/FileBrowser';
 import { ArchitectureGuide } from './components/ArchitectureGuide';
@@ -247,7 +247,7 @@ export default function App() {
 
         setAvailableTracks(tracks);
 
-        // Preload decks with VirtualDJ tracks
+        // Preload decks with default tracks
         const presetMapping: Record<DeckId, Track> = {
           A: trackBumbleBee,
           B: trackFuzzyButt,
@@ -373,11 +373,11 @@ export default function App() {
                       />
                     </div>
 
-                    {/* Center Mixer Pair: Mixer Left & VirtualDJ Center Master (only for Deck A/B) & Mixer Right */}
+                    {/* Center Mixer Pair: Mixer Left & STIL DJ Center Master (only for Deck A/B) & Mixer Right */}
                     <div className="flex items-stretch justify-center bg-[#070204] rounded-none border border-[#3a1015] shrink-0 p-0 gap-[1px]">
                       <MixerChannelStrip deckId={leftId} deckState={deckStates[leftId]} isCompact={isCompact} />
                       {index === 0 ? (
-                        <VirtualDJCenterMixer mixerState={mixerState} onOpenBroadcast={() => setIsBroadcastOpen(true)} isCompact={isCompact} />
+                        <StilDJCenterMixer mixerState={mixerState} onOpenBroadcast={() => setIsBroadcastOpen(true)} isCompact={isCompact} />
                       ) : (
                         <div className="w-px bg-[#232736] my-auto h-full hidden sm:block"></div>
                       )}

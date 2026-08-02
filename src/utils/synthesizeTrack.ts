@@ -359,6 +359,165 @@ export function createSFXBuffers(audioCtx: AudioContext): Record<string, AudioBu
   }
   sfx['glitch'] = glitchBuf;
 
+  // 13. House Synth Stab
+  const stabDur = 0.4;
+  const stabBuf = audioCtx.createBuffer(1, sampleRate * stabDur, sampleRate);
+  const stabData = stabBuf.getChannelData(0);
+  for (let i = 0; i < stabData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 12);
+    const chord = (Math.sin(2 * Math.PI * 523.25 * t) + Math.sin(2 * Math.PI * 659.25 * t) + Math.sin(2 * Math.PI * 783.99 * t)) * 0.3;
+    stabData[i] = chord * env;
+  }
+  sfx['synth_stab'] = stabBuf;
+
+  // 14. Cinema Impact Boom
+  const boomDur = 1.2;
+  const boomBuf = audioCtx.createBuffer(1, sampleRate * boomDur, sampleRate);
+  const boomData = boomBuf.getChannelData(0);
+  for (let i = 0; i < boomData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 3);
+    const sub = Math.sin(2 * Math.PI * (110 * Math.exp(-t * 6) + 30) * t) * 0.6;
+    const noise = (Math.random() * 2 - 1) * Math.exp(-t * 20) * 0.3;
+    boomData[i] = (sub + noise) * env;
+  }
+  sfx['drop_boom'] = boomBuf;
+
+  // 15. Vocal "YEAH!" Shout
+  const yeahDur = 0.4;
+  const yeahBuf = audioCtx.createBuffer(1, sampleRate * yeahDur, sampleRate);
+  const yeahData = yeahBuf.getChannelData(0);
+  for (let i = 0; i < yeahData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 10);
+    const form1 = Math.sin(2 * Math.PI * 550 * t);
+    const form2 = Math.sin(2 * Math.PI * 1400 * t);
+    yeahData[i] = (form1 * 0.6 + form2 * 0.4) * env * 0.45;
+  }
+  sfx['vocal_yeah'] = yeahBuf;
+
+  // 16. Laser Upward Sweep
+  const sweepDur = 0.6;
+  const sweepBuf = audioCtx.createBuffer(1, sampleRate * sweepDur, sampleRate);
+  const sweepData = sweepBuf.getChannelData(0);
+  for (let i = 0; i < sweepData.length; i++) {
+    const t = i / sampleRate;
+    const freq = 200 + (t / sweepDur) * 3500;
+    const env = Math.sin((t / sweepDur) * Math.PI);
+    sweepData[i] = Math.sin(2 * Math.PI * freq * t) * 0.3 * env;
+  }
+  sfx['laser_sweep'] = sweepBuf;
+
+  // 17. Tape Stop Brake
+  const stopDur = 0.6;
+  const stopBuf = audioCtx.createBuffer(1, sampleRate * stopDur, sampleRate);
+  const stopData = stopBuf.getChannelData(0);
+  for (let i = 0; i < stopData.length; i++) {
+    const t = i / sampleRate;
+    const speed = Math.max(0.01, 1 - t / stopDur);
+    const freq = 800 * speed;
+    stopData[i] = Math.sin(2 * Math.PI * freq * t) * 0.4 * speed;
+  }
+  sfx['tape_stop'] = stopBuf;
+
+  // 18. Vinyl Fast Scratch Cut
+  const cutDur = 0.3;
+  const cutBuf = audioCtx.createBuffer(1, sampleRate * cutDur, sampleRate);
+  const cutData = cutBuf.getChannelData(0);
+  for (let i = 0; i < cutData.length; i++) {
+    const t = i / sampleRate;
+    const freq = (t < 0.15 ? 1800 * Math.exp(-t * 10) : 600 + (t - 0.15) * 2000);
+    cutData[i] = Math.sin(2 * Math.PI * freq * t) * 0.4;
+  }
+  sfx['scratch_cut'] = cutBuf;
+
+  // 19. Sub Zero Impact Boom
+  const subImpDur = 1.4;
+  const subImpBuf = audioCtx.createBuffer(1, sampleRate * subImpDur, sampleRate);
+  const subImpData = subImpBuf.getChannelData(0);
+  for (let i = 0; i < subImpData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 2);
+    const subFreq = 80 * Math.exp(-t * 8) + 22;
+    const subWave = Math.sin(2 * Math.PI * subFreq * t) * 0.7;
+    const rumble = (Math.random() * 2 - 1) * Math.exp(-t * 12) * 0.3;
+    subImpData[i] = (subWave + rumble) * env;
+  }
+  sfx['sub_impact'] = subImpBuf;
+
+  // 20. Vocal "LET'S GO!" Chant
+  const goDur = 0.45;
+  const goBuf = audioCtx.createBuffer(1, sampleRate * goDur, sampleRate);
+  const goData = goBuf.getChannelData(0);
+  for (let i = 0; i < goData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 8);
+    const formA = Math.sin(2 * Math.PI * 600 * t);
+    const formB = Math.sin(2 * Math.PI * 1800 * t);
+    const formC = Math.sin(2 * Math.PI * 2400 * t);
+    goData[i] = (formA * 0.5 + formB * 0.3 + formC * 0.2) * env * 0.5;
+  }
+  sfx['vocal_letsgo'] = goBuf;
+
+  // 21. Reggae Double Airhorn Staccato
+  const regDur = 0.6;
+  const regBuf = audioCtx.createBuffer(1, sampleRate * regDur, sampleRate);
+  const regData = regBuf.getChannelData(0);
+  for (let i = 0; i < regData.length; i++) {
+    const t = i / sampleRate;
+    const pulse = (t < 0.2 || (t > 0.25 && t < 0.55)) ? 1 : 0;
+    const f1 = 466.16; // Bb4
+    const f2 = 587.33; // D5
+    const tone = (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)) * 0.35;
+    regData[i] = tone * pulse;
+  }
+  sfx['reggae_horn'] = regBuf;
+
+  // 22. Future Bass Chime Pluck
+  const pluckDur = 0.5;
+  const pluckBuf = audioCtx.createBuffer(1, sampleRate * pluckDur, sampleRate);
+  const pluckData = pluckBuf.getChannelData(0);
+  for (let i = 0; i < pluckData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 16);
+    const chime = (Math.sin(2 * Math.PI * 880 * t) + Math.sin(2 * Math.PI * 1320 * t) + Math.sin(2 * Math.PI * 1760 * t)) * 0.25;
+    pluckData[i] = chime * env;
+  }
+  sfx['synth_pluck'] = pluckBuf;
+
+  // 23. Trap Triplet Hi-Hat Stutter
+  const tripDur = 0.4;
+  const tripBuf = audioCtx.createBuffer(1, sampleRate * tripDur, sampleRate);
+  const tripData = tripBuf.getChannelData(0);
+  for (let i = 0; i < tripData.length; i++) {
+    const t = i / sampleRate;
+    const hitIndex = Math.floor(t * 24); // 24th note triplet feel
+    const hitT = (t * 24) % 1;
+    const env = Math.exp(-hitT * 25);
+    const noise = (Math.random() * 2 - 1) * env * 0.3;
+    tripData[i] = noise;
+  }
+  sfx['hihat_triplet'] = tripBuf;
+
+  // 24. Classic 90s Club Orchestra Hit
+  const orchDur = 0.5;
+  const orchBuf = audioCtx.createBuffer(1, sampleRate * orchDur, sampleRate);
+  const orchData = orchBuf.getChannelData(0);
+  for (let i = 0; i < orchData.length; i++) {
+    const t = i / sampleRate;
+    const env = Math.exp(-t * 10);
+    // Tutti C minor chord stack (C3, Eb3, G3, C4, Eb4, G4)
+    const freqs = [130.81, 155.56, 196.00, 261.63, 311.13, 392.00, 523.25];
+    let chord = 0;
+    freqs.forEach(f => {
+      chord += Math.sin(2 * Math.PI * f * t);
+    });
+    const noise = (Math.random() * 2 - 1) * Math.exp(-t * 40) * 0.4;
+    orchData[i] = (chord * 0.12 + noise) * env;
+  }
+  sfx['orchestra_hit'] = orchBuf;
+
   return sfx;
 }
 

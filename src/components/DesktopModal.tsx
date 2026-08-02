@@ -69,8 +69,8 @@ npx tauri build`;
 
   const handleDownloadWindowsLauncher = () => {
     const batContent = `@echo off
-title VirtualDJ Pro Desktop Studio
-echo Starting VirtualDJ Pro Standalone Desktop Application...
+title STIL DJ STUDIO PRO
+echo Starting STIL DJ STUDIO PRO Standalone PC Desktop Application...
 start msedge --app="${window.location.href}" --window-size=1440,900 || start chrome --app="${window.location.href}" --window-size=1440,900 || start "" "${window.location.href}"
 exit
 `;
@@ -78,7 +78,22 @@ exit
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'VirtualDJ_Pro_Launcher.exe.bat';
+    a.download = 'STIL_DJ_STUDIO_PRO_PC_Launcher.exe.bat';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadWindowsVBSSilent = () => {
+    const vbsContent = `Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run "cmd /c start msedge --app=""${window.location.href}"" --window-size=1440,900 || start chrome --app=""${window.location.href}"" --window-size=1440,900", 0, False
+`;
+    const blob = new Blob([vbsContent], { type: 'text/vbscript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'STIL_DJ_STUDIO_PRO_PC_Silent_Launcher.vbs';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -87,14 +102,14 @@ exit
 
   const handleDownloadMacLauncher = () => {
     const commandContent = `#!/bin/bash
-echo "Launching VirtualDJ Pro Desktop Application..."
+echo "Launching STIL DJ STUDIO PRO Desktop Application..."
 open -na "Google Chrome" --args --app="${window.location.href}" --window-size=1440,900 || open "${window.location.href}"
 `;
     const blob = new Blob([commandContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'VirtualDJ_Pro_Launcher.command';
+    a.download = 'STIL_DJ_STUDIO_PRO_Launcher.command';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -138,13 +153,22 @@ open -na "Google Chrome" --args --app="${window.location.href}" --window-size=14
               1-CLICK DESKTOP EXECUTABLE LAUNCHERS:
             </span>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadWindowsLauncher}
               className="flex-1 sm:flex-none px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold font-mono text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow border border-blue-400 transition"
+              title="Download Windows Batch Launcher (.exe.bat)"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Windows .EXE Launcher</span>
+            </button>
+            <button
+              onClick={handleDownloadWindowsVBSSilent}
+              className="flex-1 sm:flex-none px-3 py-1.5 rounded bg-cyan-700 hover:bg-cyan-600 text-white font-bold font-mono text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow border border-cyan-400 transition"
+              title="Download Silent Windows Desktop Shortcut (.vbs without command prompt window)"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-300" />
+              <span>Windows PC Silent (.vbs)</span>
             </button>
             <button
               onClick={handleDownloadMacLauncher}

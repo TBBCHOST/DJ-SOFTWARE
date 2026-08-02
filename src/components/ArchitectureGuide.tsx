@@ -81,8 +81,10 @@ export const ArchitectureGuide: React.FC<ArchitectureGuideProps> = ({ isOpen, on
 
               <div className="bg-blue-950/30 border border-blue-800/50 p-4 rounded-xl text-blue-200 text-xs space-y-2">
                 <div><strong>💡 Fundamental Rule of Web Audio:</strong> Always initialize or resume the <code className="text-amber-300">AudioContext</code> inside a user gesture handler (e.g. click or touch event) to bypass browser autoplay safety restrictions.</div>
+                <div><strong>🎛️ Deck-Integrated STEM Separation:</strong> Stems (Vocals, Drums, Bass, Melody) are now integrated directly inside each Turntable Deck for instant Acapella/Instrumental soloing, level mixing, and real-time stem toggles.</div>
+                <div><strong>🎹 24-Pad Sampler Matrix:</strong> Expanded performance sampler featuring 24 high-definition sound effect pads across 6 banks (Club, FX, Perc, Drops, Synths, Chants) with instant keyboard hotkeys (<code className="text-amber-300">1-0</code>, <code className="text-amber-300">Q-I</code>, <code className="text-amber-300">O, P, A, S, D, F</code>).</div>
                 <div><strong>🔴 YouTube MP3 Converter:</strong> Integrated YouTube URL streamer converts links directly into stereo AudioBuffers with real-time waveform rendering and deck routing.</div>
-                <div><strong>🖥️ Standalone Desktop Executables:</strong> Includes 1-click Windows <code className="text-cyan-300">.exe/.bat</code> and macOS <code className="text-cyan-300">.app/.command</code> launchers alongside full Electron and Tauri configuration scripts.</div>
+                <div><strong>🖥️ Standalone Windows PC Executables:</strong> Includes 1-click Windows PC <code className="text-cyan-300">.exe/.bat</code> and silent <code className="text-cyan-300">.vbs</code> desktop launchers, macOS <code className="text-cyan-300">.app</code> launchers, plus full Electron and Tauri PC compilation scripts.</div>
               </div>
             </div>
           )}

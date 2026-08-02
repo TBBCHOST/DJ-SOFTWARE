@@ -307,7 +307,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </span>
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-white tracking-wide">
-                      VirtualDJ Pro Workstation — Setup & Operating Manual
+                      STIL DJ STUDIO PRO Workstation — Setup & Operating Manual
                     </h3>
                     <p className="text-xs text-rose-200">
                       Welcome to your multi-deck virtual DJ system! Follow this guide for quick hardware setup, deck routing, and advanced mixing.
