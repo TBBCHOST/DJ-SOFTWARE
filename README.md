@@ -140,4 +140,4 @@ npx tauri build
 
 ## 📄 License
 
-VirtualDJ Pro Studio is available under the MIT License.
+own work
