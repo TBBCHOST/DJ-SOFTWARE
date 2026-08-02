@@ -23,8 +23,14 @@ interface DesktopModalProps {
 export const DesktopModal: React.FC<DesktopModalProps> = ({ isOpen, onClose }) => {
   const [copiedTab, setCopiedTab] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'pwa' | 'electron' | 'tauri'>('pwa');
+  const [targetServer, setTargetServer] = useState<'cloud' | 'local'>('cloud');
+  const [customLocalUrl, setCustomLocalUrl] = useState('http://localhost:3000');
 
   if (!isOpen) return null;
+
+  const getTargetUrl = () => {
+    return targetServer === 'cloud' ? window.location.href : customLocalUrl;
+  };
 
   const electronCode = `// main.js - Electron Desktop Entry
 const { app, BrowserWindow } = require('electron');
@@ -67,18 +73,36 @@ npx tauri build`;
     setTimeout(() => setCopiedTab(null), 2000);
   };
 
-  const handleDownloadWindowsLauncher = () => {
-    const batContent = `@echo off
-title STIL DJ STUDIO PRO
-echo Starting STIL DJ STUDIO PRO Standalone PC Desktop Application...
-start msedge --app="${window.location.href}" --window-size=1440,900 || start chrome --app="${window.location.href}" --window-size=1440,900 || start "" "${window.location.href}"
-exit
+  const handleDownloadWindowsShortcut = () => {
+    const targetUrl = getTargetUrl();
+    const urlContent = `[InternetShortcut]
+URL=${targetUrl}
+IconIndex=0
 `;
-    const blob = new Blob([batContent], { type: 'application/x-bat' });
+    const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'STIL_DJ_STUDIO_PRO_PC_Launcher.exe.bat';
+    a.download = targetServer === 'local' ? 'STIL_DJ_STUDIO_PRO_Local_Shortcut.url' : 'STIL_DJ_STUDIO_PRO_App_Shortcut.url';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadWindowsLauncher = () => {
+    const targetUrl = getTargetUrl();
+    const batContent = `@echo off
+title STIL DJ STUDIO PRO
+echo Starting STIL DJ STUDIO PRO Standalone PC Desktop Application...
+start msedge --app="${targetUrl}" --window-size=1440,900 || start chrome --app="${targetUrl}" --window-size=1440,900 || start "" "${targetUrl}"
+exit
+`;
+    const blob = new Blob([batContent], { type: 'application/x-msdos-program' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = targetServer === 'local' ? 'STIL_DJ_STUDIO_PRO_Local_Launcher.cmd' : 'STIL_DJ_STUDIO_PRO_PC_Launcher.cmd';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -86,14 +110,15 @@ exit
   };
 
   const handleDownloadWindowsVBSSilent = () => {
+    const targetUrl = getTargetUrl();
     const vbsContent = `Set WshShell = CreateObject("WScript.Shell")
-WshShell.Run "cmd /c start msedge --app=""${window.location.href}"" --window-size=1440,900 || start chrome --app=""${window.location.href}"" --window-size=1440,900", 0, False
+WshShell.Run "cmd /c start msedge --app=""${targetUrl}"" --window-size=1440,900 || start chrome --app=""${targetUrl}"" --window-size=1440,900", 0, False
 `;
     const blob = new Blob([vbsContent], { type: 'text/vbscript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'STIL_DJ_STUDIO_PRO_PC_Silent_Launcher.vbs';
+    a.download = targetServer === 'local' ? 'STIL_DJ_STUDIO_PRO_Local_Silent.vbs' : 'STIL_DJ_STUDIO_PRO_PC_Silent_Launcher.vbs';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -101,15 +126,16 @@ WshShell.Run "cmd /c start msedge --app=""${window.location.href}"" --window-siz
   };
 
   const handleDownloadMacLauncher = () => {
+    const targetUrl = getTargetUrl();
     const commandContent = `#!/bin/bash
 echo "Launching STIL DJ STUDIO PRO Desktop Application..."
-open -na "Google Chrome" --args --app="${window.location.href}" --window-size=1440,900 || open "${window.location.href}"
+open -na "Google Chrome" --args --app="${targetUrl}" --window-size=1440,900 || open "${targetUrl}"
 `;
     const blob = new Blob([commandContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'STIL_DJ_STUDIO_PRO_Launcher.command';
+    a.download = targetServer === 'local' ? 'STIL_DJ_STUDIO_PRO_Local_Launcher.command' : 'STIL_DJ_STUDIO_PRO_Launcher.command';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -145,6 +171,36 @@ open -na "Google Chrome" --args --app="${window.location.href}" --window-size=14
           </button>
         </div>
 
+        {/* Server Target Selector */}
+        <div className="bg-[#0b0e18] px-4 py-2 border-b border-[#1f2436] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-slate-300 font-bold">TARGET APP SERVER:</span>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setTargetServer('cloud')}
+              className={`px-2.5 py-1 rounded text-[11px] font-bold border transition cursor-pointer ${
+                targetServer === 'cloud'
+                  ? 'bg-cyan-950 text-cyan-300 border-cyan-500 shadow'
+                  : 'bg-[#121624] text-slate-400 border-[#22273a] hover:text-white'
+              }`}
+            >
+              Cloud Live App ({window.location.host.slice(0, 20)}...)
+            </button>
+            <button
+              onClick={() => setTargetServer('local')}
+              className={`px-2.5 py-1 rounded text-[11px] font-bold border transition cursor-pointer ${
+                targetServer === 'local'
+                  ? 'bg-amber-950 text-amber-300 border-amber-500 shadow'
+                  : 'bg-[#121624] text-slate-400 border-[#22273a] hover:text-white'
+              }`}
+            >
+              Local PC (localhost:3000)
+            </button>
+          </div>
+        </div>
+
         {/* Executable Quick Download Bar */}
         <div className="bg-[#121522] px-4 py-3 border-b border-[#232738] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -155,12 +211,20 @@ open -na "Google Chrome" --args --app="${window.location.href}" --window-size=14
           </div>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <button
+              onClick={handleDownloadWindowsShortcut}
+              className="flex-1 sm:flex-none px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold font-mono text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow border border-emerald-400 transition"
+              title="Download 100% Compatible Windows App Shortcut (.url)"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-300" />
+              <span>Windows App Shortcut (.url)</span>
+            </button>
+            <button
               onClick={handleDownloadWindowsLauncher}
               className="flex-1 sm:flex-none px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold font-mono text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow border border-blue-400 transition"
-              title="Download Windows Batch Launcher (.exe.bat)"
+              title="Download Windows Command Launcher (.cmd)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Windows .EXE Launcher</span>
+              <span>Windows Command (.cmd)</span>
             </button>
             <button
               onClick={handleDownloadWindowsVBSSilent}
@@ -168,14 +232,14 @@ open -na "Google Chrome" --args --app="${window.location.href}" --window-size=14
               title="Download Silent Windows Desktop Shortcut (.vbs without command prompt window)"
             >
               <Download className="w-3.5 h-3.5 text-amber-300" />
-              <span>Windows PC Silent (.vbs)</span>
+              <span>Windows Silent (.vbs)</span>
             </button>
             <button
               onClick={handleDownloadMacLauncher}
               className="flex-1 sm:flex-none px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold font-mono text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow border border-slate-600 transition"
             >
               <Download className="w-3.5 h-3.5 text-cyan-400" />
-              <span>macOS .APP Launcher</span>
+              <span>macOS (.command)</span>
             </button>
           </div>
         </div>

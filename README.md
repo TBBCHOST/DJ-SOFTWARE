@@ -10,9 +10,10 @@ Welcome to **STIL DJ STUDIO PRO**! Whether you are a beginner DJ, a music enthus
 If the app is already open in your browser, you can turn it into a **standalone desktop application** on your PC or Mac in just 3 clicks:
 
 1. Look at the **top right corner** of the app header and click the **`🖥️ DESKTOP APP`** button.
-2. Click **`Windows .EXE Launcher`** (or **`Windows PC Silent (.vbs)`** if you don't want a black command window to show up).
-   *(Mac users: click `Mac .COMMAND Launcher`)*.
-3. Open your computer's `Downloads` folder and **double-click the downloaded file**.
+2. Click **`Windows App Shortcut (.url)`** (recommended for zero errors on any Windows PC).
+   *(Or click `Windows Command (.cmd)` or `Windows Silent (.vbs)`)*.
+   *(Mac users: click `macOS (.command)`)*.
+3. Open your computer's `Downloads` folder and **double-click the downloaded shortcut file**.
 4. **BOOM!** STIL DJ STUDIO PRO launches in its own dedicated, distraction-free desktop app window! 🎉
 
 ---
@@ -132,6 +133,12 @@ Open Chrome, Edge, Safari, or Firefox and go to:
 ---
 
 ## ❓ Frequently Asked Questions & Troubleshooting
+
+#### 🖥️ Issue: "This app can't run on your PC" error on Windows
+> **Fix:** This happens if Windows tries to run a script file named `.exe.bat` expecting a 32/64-bit binary.
+> 1. In the top right header, click **`🖥️ DESKTOP APP`**.
+> 2. Click the green **`Windows App Shortcut (.url)`** button.
+> 3. Double-click the downloaded `.url` file in your Downloads folder. It will launch **STIL DJ STUDIO PRO** instantly in standalone window mode with zero errors!
 
 #### 🔇 Issue: I loaded a song and clicked play, but there is no sound!
 > **Fix:** Web browsers block audio from playing automatically until you interact with the page. **Click anywhere on the screen** or click the **PLAY** button once to activate the Web Audio engine!

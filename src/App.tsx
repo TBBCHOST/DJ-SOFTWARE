@@ -14,6 +14,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { DesktopModal } from './components/DesktopModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { YouTubeModal } from './components/YouTubeModal';
+import { DesktopStatusBar } from './components/DesktopStatusBar';
 
 export default function App() {
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
@@ -554,6 +555,13 @@ export default function App() {
 
       {/* Desktop Keyboard Shortcuts Cheatsheet Modal */}
       <KeyboardShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
+
+      {/* Hardware Desktop Application Status Bar */}
+      <DesktopStatusBar
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenDesktopModal={() => setIsDesktopModalOpen(true)}
+        isAudioUnlocked={isAudioUnlocked}
+      />
     </div>
   );
 }

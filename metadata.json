@@ -1,6 +1,6 @@
 {
-  "name": "Remix STIL DJ STUDIO PRO",
-  "description": "Full-featured browser DJ software with dual decks, vinyl scratching, Web Audio API DSP effects, BPM matching, and architectural guide.",
+  "name": "STIL DJ STUDIO PRO Desktop Workstation",
+  "description": "Professional standalone desktop DJ workstation with multi-decks, vinyl scratching, Web Audio DSP effects, frequency visualizer, slip mode, and stem separation.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
